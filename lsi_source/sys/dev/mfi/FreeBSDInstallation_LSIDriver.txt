@@ -1,0 +1,465 @@
+===================================================
+LSI MegaRAID Drivers and Software for FreeBSD
+===================================================
+
+ o  FreeBSD System Administration Information
+ o  Installing LSI Drivers and Software under FreeBSD
+
+
+===================================================
+FreeBSD System Administration Information
+===================================================
+
+   The latest FreeBSD System Administration information can be found here:
+ http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook
+ http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/disks-adding.html
+
+   Online man pages can be searched here:
+      http://www.freebsd.org/cgi/man.cgi
+
+===================================================
+Installing LSI Drivers and Software under FreeBSD
+===================================================
+
+   This section provides detailed instructions for installing the LSI driver
+   under a FreeBSD operating system.
+
+   The following topics are included in this section:
+   o  Driver Installation for FreeBSD
+   o  Updating Drivers under FreeBSD
+
+
+
+Driver Installation for FreeBSD
+===============================
+
+Note: Before installing the LSI driver, you must have already installed your
+      MegaRAID controller in the system. Consult the installation guide that
+      came with your controller for how to do this.
+      You can download the installation guide from:
+          http://www.lsi.com/channel/ChannelDownloads.
+
+
+This section provides details about how to install the driver for your
+MegaRAID controller under FreeBSD.
+
+   o If the VDs you have created are your boot device, you install the driver
+     for the controller as you install FreeBSD.
+
+   o If the operating system is already installed on a unit connected to another
+     controller or to the motherboard, you start FreeBSD and then install the
+     driver.
+
+This section includes these topics:
+
+   o "Obtaining LSI FreeBSD Drivers"
+
+   o "Creating a FreeBSD Driver Diskett"
+
+   o "Installing FreeBSD on Storage Managed by a MegaRAID Controller
+	(Primary Storage)"
+
+   o "Installing the Kernel Driver on a FreeBSD System that Boots from
+      a Device NOT Managed by a MegaRAID Controller(Secondary Storage)"
+
+
+Obtaining LSI FreeBSD Drivers
+-------------------------------
+
+LSI drivers can be compiled from source files into the kernel as built-in
+drivers or can be modules that are loaded by the operating system. Both
+source files and modules are available from LSI, but modules with
+current controller drivers are available for FreeBSD 7.4 and 8.2.
+
+You can obtain the MegaRAID controller driver for FreeBSD from one of
+these two sources:
+
+   o LSI software CD-ROM
+     This CD includes:
+        Compiled and tested kernel driver modules for FreeBSD 7.4,
+        located here:
+           32-bit: components/7.4/x86
+           64-bit: components/7.4/x86_64
+
+        Compiled and tested kernel driver modules for FreeBSD 8.2,
+        located here:
+           32-bit: components/8.2/x86
+           64-bit: components/8.2/x86_64
+
+        Driver source files for FreeBSD 7.x and 8.x
+        located here:
+           components/src/mfi.tgz
+
+   o LSI web site. You can download the latest compiled and tested driver
+     modules and driver source files for FreeBSD from the LSI web site at
+     http://www.lsi.com/channel/ChannelDownloads.
+
+
+Creating a FreeBSD Driver Diskette
+----------------------------------
+
+You need a diskette drive if you are going to be installing FreeBSD on a VD
+or drive managed by a MegaRAID controller card which becomes the boot
+unit for which your version of FreeBSD does not have a built-in driver.
+
+To create a driver diskette
+
+     1 Insert a blank diskette and the LSI software CD into a FreeBSD
+       installed system.
+
+     2  For FreeBSD 7.4 Navigate to: components/7.4
+        For FreeBSD 8.2 Navigate to: components/8.2
+
+     3 Copy the appropriate driver to the diskette, i.e., driver from x86
+       folder if you are installing a 32-bit FreeBSD, x86_64 folder if you
+       are installing 64-bit FreeBSD.  You need the driver source from
+       components/src/mfi.tgz if you are going to update the kernel with
+       a new driver.
+
+
+=======================================================================
+
+Installing FreeBSD on Storage Managed by a MegaRAID Controller
+(Primary Storage)
+=======================================================================
+
+     Use this procedure if your boot unit is going to be managed by the
+     MegaRAID controller.
+
+     It describes how to load the FreeBSD kernel driver module to enable boot
+     device support and how to then compile the current drivers into the kernel
+     from source files.
+
+     Please, note that FreeBSD  - 6.1-9.X includes outdated LSI driver package.
+     Thus, for a successful OS installation - primary and secondary - it is 
+     paramount to substitute the packaged LSI driver before attempting an 
+     installation.  Please see the instructions below.
+
+Note: Due to an issue with LSI mpt driver in FreeBSD 7.x and 8.x, your Megaraid
+      controllers may be impacted.    If the mpt driver issue occurs, the system 
+      will generate a soft reset and hard reset errors on the bootup.  DVD will not
+      install the OS.  To avoid the issue with mpt driver, you need to disable the
+      mpt driver before install or boot your FreeBSD system until you exclude the
+      mpt driver from the booting kernel.
+
+Prerequisite: You need an OS Installation CD for
+              FreeBSD 7.4 or FreeBSD 8.2 (x86 or amd64)
+
+Note: This procedure is specific to FreeBSD 7.4 or FreeBSD 8.2 since it requires
+      a compiled module.  For other versions of FreeBSD for which a compiled
+      module is not supplied by LSI it is necessary to compile your own module
+      from source files.
+      See "Compiling and Loading the Driver as a Module using kldload 
+          (dynamically loadable module)".
+
+     1. Disconnect all SCSI, ATA, and SAS devices in the system, except the CD
+        or DVD and hard drives connected to the MegaRAID controller.
+
+     2. Create the RAID VDs on the MegaRAID controller using WebBIOS, or
+        Preboot Cli.
+
+     3. Insert the diskette containing mfi.ko module into the diskette drive.
+
+     4. At the FreeBSD boot menu, select 6 "Escape to loader prompt."
+
+     5. At the loader prompt.
+
+        To disable the mpt driver, type the following at the prompt:
+
+        OK: set hint.mpt.0.disable=1
+        OK: set hint.mpt.1.disable=1
+
+        To load a new driver from a diskette drive:
+
+        OK: load disk0:mfi.ko
+
+Note_1: If you have multiple devices/units for OS installation, and the device/unit
+        that you want to use for the installation is not disk0, please change disk0 
+        to the appropriate number, i.e. disk1 or disk5, etc.
+
+Note_2: Remember, at this point the old driver is not used but will still be 
+        installed as a part of the new installation.  The installed kernel will 
+        have to be rebuilt.
+
+     6. Continue with the installation by typing.
+
+	OK: boot
+
+
+     7. Install the FreeBSD OS - including kernel source.
+	Please, remember including kernel source files is critical.	
+	Remove the FreeBSD installation CD, and reboot.
+
+     8. On the bootup repeat step 5-6. Upon boot, continue with the instruction 
+        in  the section of "Updating the Kernel with the New Driver Source" for 
+        statically linked module.
+
+ 
+=======================================================================
+
+Installing the Kernel Driver on a FreeBSD System that Boots from
+      a Device NOT Managed by a MegaRAID Controller(Secondary Storage)
+
+=======================================================================
+
+     Use the steps in this section if FreeBSD boots from a device NOT managed by a 
+     MegaRAID controller, but MegaRAID controller is or will be present on the system 
+     and used for managing secondary storage.
+
+     When you use the VD managed by the MegaRAID controller for secondary storage, 
+     you do not need to use a driver diskette for driver installation.
+
+     Please, note that FreeBSD  - 6.1-9.X includes outdated LSI driver package.
+     Thus, for a successful OS installation - primary and secondary - it is paramount 
+     to substitute the packaged LSI driver before attempting an installation.
+     Please see the instructions below.
+
+Note: Due to an issue with LSI mpt driver in FreeBSD 7.x and 8.x, your Megaraid
+      controllers may be impacted.  To avoid the issue with mpt driver, you may 
+      need to disable the mpt driver before install or boot your FreeBSD system
+      until you exclude the mpt driver from the installed kernel.  If the mpt 
+      driver is not removed, the system will generate a soft reset and hard 
+      reset errors on the bootup.  DVD will not load.
+
+Tip: Install FreeBSD on the drive attached to the motherboard before installing
+     the MegaRAID controller. This avoids the possibility of installing to the
+     wrong drive or unit.
+
+     1 Get the latest driver source files for your version of FreeBSD.
+       See "Obtaining LSI FreeBSD Drivers".
+
+
+A. System does not include an LSI controller before the OS installation:
+-------------------------------------------------------------------------
+
+     1. Install FreeBSD - including kernel source - on a motherboard attached drive. 
+        Please, remember including kernel source files is critical.
+
+     2. After the OS installation, please reboot.
+
+     3. Follow the instructions for driver installation in 
+
+        "Updating the Kernel with the New Driver Source" for Statically Linked
+        Module,  or
+ 
+        "Compiling and Loading the Driver as a Module using kldload" (for Dynamically 
+         Loadable Module).
+
+     4. Once FreeBSD is installed and the driver is updated, power down the system and 
+        install the MegaRAID controller. For assistance, see the installation guide
+        that came with the controller.
+
+
+B. System includes a Megaraid controller before the OS installation:
+--------------------------------------------------------------------
+
+     1. Begin the installation process. 
+
+     2. As the DVD loads, the user is offered boot options.
+
+     3. Choose #6: Escape to prompt
+ 
+	To disable the mpt driver, type the following at the prompt:
+
+        OK: set hint.mpt.0.disable=1
+        OK: set hint.mpt.1.disable=1
+        OK: boot
+
+     4. Proceed with the installation on a disk attached to the motherboard.
+           Be sure to install the full FreeBSD source.
+
+     5. After the OS installation, follow the instructions for driver installation in
+
+        "Updating the Kernel with the New Driver Source" for Statically Linked
+        Module,  or
+ 
+        "Compiling and Loading the Driver as a Module using kldload" (for Dynamically 
+         Loadable Module).
+
+
+
+
+
+Updating Drivers under FreeBSD
+==============================
+
+     Drivers can be updated either from source files or with driver modules.
+
+     Using source files, you can compile drivers into the kernel or you can
+     create modules for versions of FreeBSD for which LSI does not supply
+     modules.
+
+     This section includes these topics:
+
+        o "Updating the Kernel with the New Driver Source"
+
+        o "Compiling and Loading the Driver as a Module using kldload" (dynamically 
+          loadable module)
+
+        o "Updating the MegaRAID Kernel Driver Module Under FreeBSD"
+     
+     
+Updating the Kernel with the New Driver Source 
+----------------------------------------------
+
+     Use this procedure if you wish to update your kernel from driver source files
+     for both dynamically loadable module and statically linked module.  To obtain 
+     source files, see "Obtaining LSI FreeBSD Drivers".
+
+     1. Make sure that kernel source has been installed on the system.
+        The kernel sources are in the /usr/src/sys directory.
+
+     2. Proceed to the /usr/sys/dev/ directory
+	If a directory with the name "mfi" already exists, move it to some other
+	folder.  For example:
+
+       	 # mv /usr/src/sys/dev/mfi /root/mfi.backup
+
+     3. Proceed to the /usr/sys/modules/ directory
+	If a directory with the name "mfi" already exists, move it to some other
+	folder.  For example:
+
+       	 # mv /usr/src/sys/modules/mfi /root/mfi_module.backup	
+
+     4. Unpack mfi.tgz then move the *.c and *.h files to /usr/src/sys/dev/mfi 
+        and move the Makefile to /usr/src/sys/modules/mfi.  For example:
+
+         # cd /usr/src/sys/dev
+         # tar -x -f mfi.tgz
+         # mv mfi/Makfile /usr/src/sys/modules/mfi/.
+
+     5. At this point, proceed to 
+	/usr/src/sys/i386/conf if you are running a 32bit version of FreeBSD
+	/usr/src/sys/amd64/conf if you are running a 64bit version of FreeBSD
+
+        a. Open your current configuration file: (GENERIC, MYKERNEL, SMP, or PAE
+           or custom config), with vi or other editor.
+
+           Comment out the following lines by placing '#' at the beginning of the line:
+
+           #device   cbb   # cardbus (yenta) bridge
+           #device   mpt   # LSI-Logic MPT-Fusion
+
+           For a dynamically loadable module
+	   ---------------------------------
+
+	   Comment out the following line by placing '#' at the beginning of the line.
+
+           #device   mfi   # LSI MegaRAID SAS
+
+           For a statically linked module
+	   ------------------------------
+
+	   make sure following line is NOT commented out.
+
+           device   mfi   # LSI MegaRAID SAS
+
+        b. Save changes.
+
+        c. In /usr/src/sys/conf/files add the following entries after the entries 
+           for "dev/mfi/mfi_cam.c":
+
+           dev/mfi/mfi_syspd.c   optional mfi
+
+           For the 4.xx mfi driver with Thunderbolt support, also add the following:
+
+           dev/mfi/mfi_fp.c      optional mfi
+           dev/mfi/mfi_tbolt.c   optional mfi
+
+        d. Save changes.
+
+        e. To compile the kernel, go to /usr/src directory and type the following if 
+           your current configuration is MYKERNEL.
+
+           # cd /usr/src
+           # make buildkernel KERNCONF=MYKERNEL
+
+        f. To install the new kernel, type the following if your current configuration 
+           is MYKERNEL.
+
+           # make installkernel KERNCONF=MYKERNEL
+
+           The new kernel will be copied to the /boot/kernel directory.
+           The old kernel will be moved to the /boot/kernel.old directory.
+           
+     6. Reboot your system.
+
+       When the system reboots, the new kernel driver module will load
+       automatically.
+       
+       
+
+Compiling and Loading the Driver as a Module using kldload (dynamically linked module)
+--------------------------------------------------------------------------------------
+
+     If you want to use a driver module and LSI does not supply one for your
+     version of FreeBSD, use the following procedure. If you just want to
+     install an LSI-supplied module, see "Updating the MegaRAID Kernel Driver
+     Module Under FreeBSD".
+     
+     Note: You can only use kldload to load the driver as a module if your boot
+           drive is attached to the mother board and is not managed by the
+           MegaRAID controller.
+
+     To compile the driver as a module
+     
+     1. Boot to FreeBSD.
+
+     2. Obtain driver source files, see "Obtaining LSI FreeBSD Drivers".
+
+     3. Prepare your kernel is prepared for Dynamically Loadable Module described in
+
+        "Updating the Kernel with the New Driver Source" 
+        
+     4. To build the mfi.ko module:
+
+        # cd /usr/src/sys/modules/mfi
+        # make
+
+        The mfi.ko module is created in /usr/src/sys/modules/mfi.
+
+     5. Load the kernel driver module
+
+        # cd /usr/src/sys/modules/mfi
+        # kldload -v ./mfi.ko
+
+     6. If you wish to load the driver automatically on the bootup - but still 
+        be linked dynamically:
+
+         a. copy mfi.ko into the boot folder
+
+            cp /sys/modules/mfi/mfi.ko /boot/kernel/mfi.ko
+            (backup the old module if you wish to revert back)
+
+         b. add the line 'mfi_load="YES"' to the file /boot/loader.conf
+
+
+Updating the MegaRAID Kernel Driver Module Under FreeBSD
+--------------------------------------------------------
+
+     The following steps describe how to update the MegaRAID driver with a
+     kernel driver module under FreeBSD.
+     
+     Make a backup of your original driver before updating in case you need
+     to revert back to it.  However, you will not be able to revert back to
+     the original driver if you are booting from that VD.
+
+     1. Obtain the driver, see "Obtaining LSI FreeBSD Drivers".
+
+     2. Make a backup of any critical data prior to updating the MegaRAID driver.
+
+     3. Change the directory to the location with the driver.
+     
+        Copy the driver into /boot/kernel.
+        Make sure the module version matches the FreeBSD version. If the
+        versions don't match there could be a kernel panic.
+
+     4. Load the driver.
+
+        # kldload -v mfi.ko
+
+        If storage is present, you should see information in the system
+        log (usually, /var/log/messages).
+
+     5. If you wish to load the driver automatically every time the system is
+        rebooted, add the line 'mfi_load="YES"' to the file /boot/loader.conf
